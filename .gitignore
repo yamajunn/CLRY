@@ -1,0 +1,10 @@
+*.pt
+*.csv
+*.log
+*.pkl
+*.png
+yolov5
+runs
+*.txt
+*.yaml
+Clash_royale
