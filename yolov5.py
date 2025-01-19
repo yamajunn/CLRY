@@ -1,32 +1,23 @@
 import torch
-from torchvision import transforms
+from pathlib import Path
 from PIL import Image
 
-# モデルのパス
-model_path = 'best.pt'
+# モデルをロード
+model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')  # 'best.pt' のパスを指定
 
-# 推論用画像のパス
-image_path = 'sample.jpg'
+# 推論対象の画像パス
+image_path = 'image.png'  # 推論したい画像のパス
 
-# 推論用変換
-transform = transforms.Compose([
-    transforms.Resize((640, 640)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-])
+# 推論の実行
+results = model(image_path)
 
-# YOLOv5 モデルのロード
-model = torch.load(model_path, map_location=torch.device('cpu'))
+# 結果を保存
+output_dir = Path('yoled/image_yolo.png')  # デフォルト出力ディレクトリ
+output_dir.mkdir(parents=True, exist_ok=True)
+results.save(output_dir)
 
-# モデルの評価モードに設定
-model.eval()
+# 結果を表示 (ターミナルにテキスト出力)
+print(results.pandas().xyxy[0])  # バウンディングボックス座標とクラス情報
 
-# 画像の読み込みと変換
-image = Image.open(image_path).convert("RGB")
-input_tensor = transform(image).unsqueeze(0)
-
-# 推論
-with torch.no_grad():
-    outputs = model(input_tensor)
-
-print(outputs)
+# 結果画像を表示 (任意)
+results.show()  # Matplotlibを使用して表示
